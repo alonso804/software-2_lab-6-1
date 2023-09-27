@@ -16,9 +16,9 @@ class OauthController {
   }
 
   static async callback(req: Request, res: Response): Promise<void> {
-    const { code, state: receivedState } = req.query;
+    const { code } = req.query;
 
-    const body = {
+    const params = {
       grant_type: 'authorization_code',
       code: code,
       redirect_uri: redirectUri,
@@ -31,9 +31,21 @@ class OauthController {
       'Content-Type': 'application/x-www-form-urlencoded',
     };
 
-    await axios.post(process.env.TOKEN_URI, body, { headers });
+    const oktaRes = await axios.post<{ access_token: string }>(process.env.TOKEN_URI, params, {
+      headers,
+    });
 
-    res.status(200).send({ code, receivedState });
+    const infoHeaders = {
+      Authorization: `Bearer ${oktaRes.data.access_token}`,
+    };
+
+    logger.info({ infoHeaders });
+
+    const info = await axios.get<Record<string, string>>(process.env.USERINFO_URI, {
+      headers: infoHeaders,
+    });
+
+    res.status(200).send({ userInfo: info.data });
   }
 }
 

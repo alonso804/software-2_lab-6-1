@@ -11,6 +11,7 @@ const envVariablesSchema = z.object({
   CLIENT_SECRET: z.string(),
   AUTH_URI: z.string().url(),
   TOKEN_URI: z.string().url(),
+  USERINFO_URI: z.string().url(),
   // MONGO_URI: z.string().url(),
 });
 
@@ -27,6 +28,6 @@ if (parsedEnvVariables.success) {
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace NodeJS {
-    interface ProcessEnv extends z.infer<typeof envVariablesSchema> { }
+    interface ProcessEnv extends z.infer<typeof envVariablesSchema> {}
   }
 }
